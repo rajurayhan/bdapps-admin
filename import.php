@@ -12,42 +12,75 @@
   }
 $conn = mysqli_connect("localhost", "root", "", "bdaps");
 
-if (isset($_POST["import"])) {
+// if (isset($_POST["import"])) {
 
-    $allowed =  array('csv');
-    $fileName = $_FILES["file"]["name"];
-    $ext = pathinfo($fileName, PATHINFO_EXTENSION);
-    // echo $ext;
-    if(!in_array($ext,$allowed) ) {
+//     $allowed =  array('csv');
+//     $fileName = $_FILES["file"]["name"];
+//     $ext = pathinfo($fileName, PATHINFO_EXTENSION);
+//     $fileName = $_FILES["file"]["tmp_name"];
+//     // echo $ext;
+//     if(!in_array($ext,$allowed) ) {
         
-        // exit();
-        // header('Location: import.php');
-        $type = "danger";
-        $message = "Problem in Importing CSV Data";
-    }
+//         // exit();
+//         // header('Location: import.php');
+//         $type = "danger";
+//         $message = "Problem in Importing CSV Data";
+//     }
     
-    // $fileName = $_FILES["file"]["tmp_name"];
+//     // $fileName = $_FILES["file"]["tmp_name"];
     
-    else{
-        if ($_FILES["file"]["size"] > 0) {
+//     else{
+//         if ($_FILES["file"]["size"] > 0) {
         
-            $file = fopen($fileName, "r");
+//             $file = fopen($fileName, "r");
 
-            $loop = 0;
+//             $loop = 0;
             
-            while (($column = fgetcsv($file, 10000, ",")) !== FALSE) {
-                $sqlInsert = "INSERT into contents (applicationId, keyword, content_type, content, content_status, content_lang, date_added)
-                    values ('" . $column[0] . "','" . $column[1] . "','" . $column[2] . "','" . $column[3] . "','" . $column[4] . "','" . $column[5] . "','" . $column[6] . "')";
-                $result = mysqli_query($conn, $sqlInsert);
-                $loop++;
+//             while (($column = fgetcsv($file, 10000, ",")) !== FALSE) {
+//                 $sqlInsert = "INSERT into contents (applicationId, keyword, content_type, content, content_status, content_lang, date_added)
+//                     values ('" . $column[0] . "','" . $column[1] . "','" . $column[2] . "','" . $column[3] . "','" . $column[4] . "','" . $column[5] . "','" . $column[6] . "')";
+//                 $result = mysqli_query($conn, $sqlInsert);
+//                 $loop++;
                 
-                if (! empty($result)) {
-                    $type = "success";
-                    $message = "$loop contents Imported into the Database";
-                } else {
-                    $type = "danger";
-                    $message = "Problem in Importing CSV Data";
-                }
+//                 if (! empty($result)) {
+//                     $type = "success";
+//                     $message = "$loop contents Imported into the Database";
+//                 } else {
+//                     $type = "danger";
+//                     $message = "Problem in Importing CSV Data";
+//                 }
+//             }
+//         }
+//     }
+// }
+
+if (isset($_POST["import"])) {
+    
+    $fileName = $_FILES["file"]["tmp_name"];
+    
+    if ($_FILES["file"]["size"] > 0) {
+        
+        $file = fopen($fileName, "r");
+
+        $total = 0;
+
+        $status = 1;
+        $date   = date('Y-m-d h:i:s');
+        
+        while (($column = fgetcsv($file, 10000, ",")) !== FALSE) {
+            $sqlInsert = "INSERT into contents (applicationId, keyword, content_type, content, content_status, content_lang, date_added)
+                    values ('" . $column[0] . "','" . $column[1] . "','" . $column[2] . "','" . $column[3] . "','" . $status . "','" . $column[4] . "','" . $date . "')";
+            $result = mysqli_query($conn, $sqlInsert);
+
+            $total++;
+            //echo $column[4];    
+            
+            if (! empty($result)) {
+                $type = "success";
+                $message = $total." Data Imported into the Database";
+            } else {
+                $type = "error";
+                $message = "Problem in Importing CSV Data";
             }
         }
     }
